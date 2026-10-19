@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulasi Gerak Jatuh Bebas</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <h1>Gerak Jatuh Bebas</h1>
+  <p>Gerak vertikal bola di bawah pengaruh gravitasi. Hambatan udara diabaikan.</p>
+</header>
+
+<main class="app">
+  <!-- ====== PANGGUNG SIMULASI ====== -->
+  <section class="stage" aria-label="Simulasi">
+    <canvas id="cv" aria-label="Bola jatuh dari ketinggian tertentu"></canvas>
+    <div class="live" id="live" aria-live="off"></div>
+    <div class="hint" id="hint">Seret bola untuk mengubah tinggi awal</div>
+    <div class="bar">
+      <button id="reset" class="rb" title="Ulangi dari awal">↺</button>
+      <button id="play" class="pb" title="Mulai / jeda (Spasi)">▶</button>
+      <button id="step" class="rb" title="Maju 0,05 s">⏭</button>
+      <input id="tsl" type="range" min="0" max="1" step="0.001" value="0" aria-label="Waktu simulasi">
+      <fieldset class="spd"><legend>Kecepatan putar</legend>
+        <label><input type="radio" name="sp" value="0.25">Lambat</label>
+        <label><input type="radio" name="sp" value="1" checked>Normal</label>
+        <label><input type="radio" name="sp" value="2">Cepat</label>
+      </fieldset>
+    </div>
+  </section>
+
+  <!-- ====== PANEL KONTROL ====== -->
+  <aside class="panel">
+    <div class="box">
+      <h2>Contoh cepat</h2>
+      <div class="chips">
+        <button class="chip" data-pre="free">Jatuh bebas</button>
+        <button class="chip" data-pre="down">Lempar ke bawah</button>
+        <button class="chip" data-pre="up">Lempar ke atas</button>
+      </div>
+    </div>
+
+    <div class="box">
+      <h2>Pengaturan</h2>
+      <label for="h0n">Tinggi awal h₀ (m)</label>
+      <div class="pair"><input id="h0r" type="range" min="0" max="100" step="0.5" value="20"><input id="h0n" type="number" min="0" step="any" value="20"></div>
+
+      <label for="v0n">Kecepatan awal v₀ (m/s)</label>
+      <div class="pair"><input id="v0r" type="range" min="0" max="40" step="0.5" value="0"><input id="v0n" type="number" min="0" step="any" value="0"></div>
+
+      <div class="seg" role="radiogroup" aria-label="Arah kecepatan awal">
+        <label><input type="radio" name="dir" value="-1" checked><span>↓ Ke bawah</span></label>
+        <label><input type="radio" name="dir" value="1"><span>↑ Ke atas</span></label>
+      </div>
+      <p class="note">v₀ = 0 berarti jatuh bebas murni.</p>
+
+      <label for="pl">Gravitasi g (m/s²)</label>
+      <select id="pl">
+        <option value="9.8">Bumi (9,8)</option><option value="1.62">Bulan (1,62)</option>
+        <option value="3.71">Mars (3,71)</option><option value="24.79">Jupiter (24,79)</option>
+        <option value="custom">Kustom…</option>
+      </select>
+      <input id="gn" type="number" min="0" step="any" value="9.8" aria-label="Nilai g">
+      <div class="err" id="err" role="alert"></div>
+    </div>
+
+    <div class="box">
+      <h2>Tampilan</h2>
+      <label class="chk"><input type="checkbox" id="oV" checked> Vektor kecepatan (v)</label>
+      <label class="chk"><input type="checkbox" id="oA"> Vektor percepatan (a)</label>
+      <label class="chk"><input type="checkbox" id="oT" checked> Jejak bola per selang waktu</label>
+      <label class="chk"><input type="checkbox" id="oR" checked> Penggaris tinggi</label>
+    </div>
+
+    <div class="box">
+      <h2>Hasil</h2>
+      <div class="res" id="res"></div>
+    </div>
+  </aside>
+</main>
+
+<!-- ====== PENJELASAN, DATA, VALIDASI ====== -->
+<section class="tabs">
+  <nav role="tablist">
+    <button class="tab on" data-tab="grafik">Grafik</button>
+    <button class="tab" data-tab="tabel">Tabel data</button>
+    <button class="tab" data-tab="konsep">Konsep</button>
+    <button class="tab" data-tab="valid">Validasi</button>
+    <button class="tab" data-tab="eksp">Teori vs eksperimen</button>
+  </nav>
+
+  <div class="pane on" id="grafik">
+    <canvas id="gr" aria-label="Grafik y–t, v–t, dan a–t"></canvas>
+    <p class="note">Garis putus-putus: seluruh gerak. Garis tebal: yang sudah dilalui. Titik merah: kondisi saat ini.</p>
+  </div>
+
+  <div class="pane" id="tabel">
+    <p class="note">Sumbu y positif ke atas. Tanda − pada v berarti bola bergerak ke bawah.</p>
+    <div class="scroll"><table id="tbl"></table></div>
+  </div>
+
+  <div class="pane" id="konsep">
+    <p><b>Gerak jatuh bebas</b> adalah gerak vertikal yang hanya dipengaruhi gravitasi. Percepatannya tetap, sebesar g, dan arahnya ke bawah. Massa benda tidak berpengaruh karena hambatan udara diabaikan.</p>
+    <p><b>Perjanjian arah:</b> ke atas positif. Maka a = −g, dan v₀ᵧ = −v₀ bila dilempar ke bawah atau +v₀ bila dilempar ke atas.</p>
+    <span class="eq">y(t) = h₀ + v₀ᵧ t − ½ g t²</span>
+    <span class="eq">vᵧ(t) = v₀ᵧ − g t</span>
+    <span class="eq">vᵧ² = v₀ᵧ² − 2g (y − h₀)</span>
+    <span class="eq">t<sub>jatuh</sub> = (v₀ᵧ + √(v₀ᵧ² + 2 g h₀)) / g</span>
+    <span class="eq">v<sub>tanah</sub> = √(v₀² + 2 g h₀)</span>
+    <span class="eq">Jatuh bebas (v₀ = 0): t = √(2h₀/g), v = g t</span>
+    <span class="eq">Dilempar ke atas: t<sub>puncak</sub> = v₀/g, h<sub>maks</sub> = h₀ + v₀²/(2g)</span>
+    <p><b>Membaca grafik:</b> y–t berbentuk parabola, v–t garis lurus dengan kemiringan −g, dan a–t garis datar di −g.</p>
+    <p class="note">Satuan: h, y dalam m; v dalam m/s; g dalam m/s²; t dalam s.</p>
+  </div>
+
+  <div class="pane" id="valid">
+    <p><b>1. Hitungan manual</b> (cocokkan dengan kalkulator):</p>
+    <div class="steps" id="manual"></div>
+    <p><b>2. Rumus vs simulasi numerik.</b> Program menggerakkan bola langkah demi langkah (Δt = 0,001 s) tanpa rumus jadi, lalu membandingkannya dengan rumus. Galat di bawah 1 % dianggap sesuai.</p>
+    <div class="scroll"><table id="val"></table></div>
+  </div>
+
+  <div class="pane" id="eksp">
+    <p class="note">Masukkan hasil praktikum (Tracker, atau meteran dan stopwatch video). Atur h₀, v₀, dan g di panel agar sama dengan percobaanmu.</p>
+    <div class="exrow">
+      <div><label for="exT">Waktu jatuh eksperimen (s)</label><input id="exT" type="number" min="0" step="any" placeholder="misal 2,10"></div>
+      <div><label for="exV">Kecepatan mendarat eksperimen (m/s)</label><input id="exV" type="number" min="0" step="any" placeholder="misal 19,2"></div>
+    </div>
+    <div class="scroll"><table id="cmp"></table></div>
+    <p id="cmpNote" class="note"></p>
+  </div>
+</section>
+
+<script src="script.js"></script>
+</body>
+</html>
