@@ -13,42 +13,42 @@
 </header>
 
 <main class="app">
-  <!-- ====== PANGGUNG SIMULASI ====== -->
   <section class="stage" aria-label="Simulasi">
     <canvas id="cv" aria-label="Bola jatuh dari ketinggian tertentu"></canvas>
     <div class="live" id="live" aria-live="off"></div>
-    <div class="hint" id="hint">Seret bola untuk mengubah tinggi awal</div>
+    <div class="hint" id="hint">Seret bola untuk tinggi awal. Seret titik biru untuk kecepatan awal.</div>
     <div class="bar">
-      <button id="reset" class="rb" title="Ulangi dari awal">↺</button>
-      <button id="play" class="pb" title="Mulai / jeda (Spasi)">▶</button>
-      <button id="step" class="rb" title="Maju 0,05 s">⏭</button>
+      <button id="reset" class="rb" title="Ulangi dari awal (R)" aria-label="Ulangi">↺</button>
+      <button id="back" class="rb" title="Mundur 0,05 s (←)" aria-label="Mundur">⏮</button>
+      <button id="play" class="pb" title="Mulai / jeda (Spasi)" aria-label="Mulai atau jeda">▶</button>
+      <button id="step" class="rb" title="Maju 0,05 s (→)" aria-label="Maju">⏭</button>
       <input id="tsl" type="range" min="0" max="1" step="0.001" value="0" aria-label="Waktu simulasi">
       <fieldset class="spd"><legend>Kecepatan putar</legend>
-        <label><input type="radio" name="sp" value="0.25">Lambat</label>
-        <label><input type="radio" name="sp" value="1" checked>Normal</label>
-        <label><input type="radio" name="sp" value="2">Cepat</label>
+        <label><input type="radio" name="sp" value="0.1"><span>0,1×</span></label>
+        <label><input type="radio" name="sp" value="0.25"><span>0,25×</span></label>
+        <label><input type="radio" name="sp" value="1" checked><span>1× (nyata)</span></label>
+        <label><input type="radio" name="sp" value="2"><span>2×</span></label>
       </fieldset>
     </div>
   </section>
 
-  <!-- ====== PANEL KONTROL ====== -->
   <aside class="panel">
-    <div class="box">
-      <h2>Contoh cepat</h2>
+    <details class="box" open>
+      <summary>Contoh cepat</summary>
       <div class="chips">
         <button class="chip" data-pre="free">Jatuh bebas</button>
         <button class="chip" data-pre="down">Lempar ke bawah</button>
         <button class="chip" data-pre="up">Lempar ke atas</button>
       </div>
-    </div>
+    </details>
 
-    <div class="box">
-      <h2>Pengaturan</h2>
+    <details class="box" open>
+      <summary>Pengaturan</summary>
       <label for="h0n">Tinggi awal h₀ (m)</label>
-      <div class="pair"><input id="h0r" type="range" min="0" max="100" step="0.5" value="20"><input id="h0n" type="number" min="0" step="any" value="20"></div>
+      <div class="pair"><input id="h0r" type="range" min="0" max="100" step="0.5" value="20" aria-label="Tinggi awal, penggeser"><input id="h0n" type="number" min="0" step="any" value="20"></div>
 
       <label for="v0n">Kecepatan awal v₀ (m/s)</label>
-      <div class="pair"><input id="v0r" type="range" min="0" max="40" step="0.5" value="0"><input id="v0n" type="number" min="0" step="any" value="0"></div>
+      <div class="pair"><input id="v0r" type="range" min="0" max="40" step="0.5" value="0" aria-label="Kecepatan awal, penggeser"><input id="v0n" type="number" min="0" step="any" value="0"></div>
 
       <div class="seg" role="radiogroup" aria-label="Arah kecepatan awal">
         <label><input type="radio" name="dir" value="-1" checked><span>↓ Ke bawah</span></label>
@@ -64,24 +64,25 @@
       </select>
       <input id="gn" type="number" min="0" step="any" value="9.8" aria-label="Nilai g">
       <div class="err" id="err" role="alert"></div>
-    </div>
+    </details>
 
-    <div class="box">
-      <h2>Tampilan</h2>
+    <details class="box" open>
+      <summary>Tampilan</summary>
       <label class="chk"><input type="checkbox" id="oV" checked> Vektor kecepatan (v)</label>
       <label class="chk"><input type="checkbox" id="oA"> Vektor percepatan (a)</label>
       <label class="chk"><input type="checkbox" id="oT" checked> Jejak bola per selang waktu</label>
       <label class="chk"><input type="checkbox" id="oR" checked> Penggaris tinggi</label>
-    </div>
+    </details>
 
-    <div class="box">
-      <h2>Hasil</h2>
+    <details class="box" open>
+      <summary>Hasil</summary>
       <div class="res" id="res"></div>
-    </div>
+    </details>
+
+    <button id="all" class="all">↺ Atur ulang semua</button>
   </aside>
 </main>
 
-<!-- ====== PENJELASAN, DATA, VALIDASI ====== -->
 <section class="tabs">
   <nav role="tablist">
     <button class="tab on" data-tab="grafik">Grafik</button>
@@ -93,11 +94,19 @@
 
   <div class="pane on" id="grafik">
     <canvas id="gr" aria-label="Grafik y–t, v–t, dan a–t"></canvas>
-    <p class="note">Garis putus-putus: seluruh gerak. Garis tebal: yang sudah dilalui. Titik merah: kondisi saat ini.</p>
+    <p class="note">Klik atau seret pada grafik untuk memindahkan waktu. Garis putus-putus: seluruh gerak. Garis tebal: yang sudah dilalui. Titik merah: kondisi saat ini.</p>
   </div>
 
   <div class="pane" id="tabel">
-    <p class="note">Sumbu y positif ke atas. Tanda − pada v berarti bola bergerak ke bawah.</p>
+    <div class="tools">
+      <label for="tstep">Selang waktu</label>
+      <select id="tstep">
+        <option value="0">10 bagian sama</option><option value="0.1">0,1 s</option>
+        <option value="0.25">0,25 s</option><option value="0.5">0,5 s</option><option value="1">1 s</option>
+      </select>
+      <button id="csv" class="chip">Unduh CSV</button>
+    </div>
+    <p class="note">Sumbu y positif ke atas. Tanda − pada v berarti bola bergerak ke bawah. Klik baris untuk melompat ke waktu itu.</p>
     <div class="scroll"><table id="tbl"></table></div>
   </div>
 
@@ -118,7 +127,7 @@
   <div class="pane" id="valid">
     <p><b>1. Hitungan manual</b> (cocokkan dengan kalkulator):</p>
     <div class="steps" id="manual"></div>
-    <p><b>2. Rumus vs simulasi numerik.</b> Program menggerakkan bola langkah demi langkah (Δt = 0,001 s) tanpa rumus jadi, lalu membandingkannya dengan rumus. Galat di bawah 1 % dianggap sesuai.</p>
+    <p><b>2. Rumus vs simulasi numerik.</b> Program menggerakkan bola langkah demi langkah (Δt = 0,001 s, metode Verlet kecepatan) tanpa rumus jadi, lalu membandingkannya dengan rumus. Galat di bawah 1 % dianggap sesuai.</p>
     <div class="scroll"><table id="val"></table></div>
   </div>
 

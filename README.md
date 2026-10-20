@@ -51,3 +51,10 @@ Tab **Teori vs eksperimen** menerima waktu jatuh dan laju mendarat dari praktiku
 
 ## Untuk pengumpulan
 Kirim ketiga file sebagai source code. Tambahkan screenshot (pengaturan, grafik, validasi, perbandingan) dan video demo 1–2 menit rekam layar. Hosting gratis: GitHub Pages atau Netlify.
+
+## Pembaruan versi ini
+- **Lebih presisi:** simulasi numerik memakai metode Verlet kecepatan (eksak untuk percepatan tetap). Waktu animasi 1× = waktu nyata, dan bola berhenti tepat di waktu mendarat.
+- **Lebih interaktif:** seret bola (h₀) dan titik biru di ujung panah v (v₀ dan arahnya) langsung di panggung. Klik atau seret grafik untuk memindahkan waktu. Tombol mundur, kecepatan 0,1×, tanda puncak, dan tombol Atur ulang semua.
+- **Pintasan keyboard:** Spasi mulai/jeda, ← mundur, → maju, R ulangi.
+- **Tampilan ala PhET:** panel yang bisa dilipat, awan, gedung, dan bar kontrol bulat. Tata letak responsif sampai layar ponsel (grafik tersusun vertikal).
+- **Tabel data:** pilih selang waktu, baris puncak dan mendarat otomatis, penanda fase, baris aktif menyorot sesuai waktu, klik baris untuk melompat, dan unduh CSV.
